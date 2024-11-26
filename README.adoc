@@ -1,0 +1,13 @@
+Running Kotlin scripts inside Spring Boot applications is a cool thing.
+
+But it is very tricky to make it work inside SpringBoot fatjars.
+
+Kotlin cannot load classes from the fatjars.
+
+Theoretically, a classloader can be configured for Kotlin scripting.
+
+Unfortunately, this doesn't actually work because the implementation uses its own classloader.
+
+The workaround is to unpack the jars used by the scripts.
+
+This project contains sample code including a gradle setup that implements a minimal project with these requirements.
