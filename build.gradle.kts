@@ -1,8 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version  "2.0.21"
+    kotlin("jvm") version "2.0.21"
 }
+
+extra["kotlinVersion"] = "2.0.21"
 
 allprojects {
     group = "de.micromata.kotlinscripting"

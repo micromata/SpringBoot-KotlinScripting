@@ -27,6 +27,7 @@ I tried several approaches:
 - passing my own classLoader (doesn't work)
 - unpacking jars in the SpringBoot fatjar (does work), and
 - automatically copying jars from the fatjar to the local file system (will follow).
+
 I will show all approaches here and call for improvements.
 
 ## Gradle vs. Maven
@@ -54,3 +55,11 @@ Just run:
 1. `./gradlew clean build`
 2. `java -jar application/build/libs/application-0.0.1.jar`
 3. See the output in the console.
+
+
+## Jetbrains
+
+Please refer: https://blog.jetbrains.com/kotlin/2024/11/state-of-kotlin-scripting-2024/
+
+- The used BasicScriptingHost here is part of Jetbrains' Kotlin scripting.
+- JSR 223 is outdated and will be removed.
