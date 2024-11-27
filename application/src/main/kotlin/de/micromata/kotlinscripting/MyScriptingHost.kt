@@ -7,8 +7,12 @@ import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 
 private val log = KotlinLogging.logger {}
 
+/**
+ * If you want to pass a threadlocal variable, you can use this class.
+ * Otherwise, BasicJvmScriptingHost() can be used directly.
+ */
 class CustomScriptingHost(
-    private val customClassLoader: ClassLoader
+    // private val customClassLoader: ClassLoader
 ) : BasicJvmScriptingHost() {
 
     override fun eval(
@@ -16,7 +20,7 @@ class CustomScriptingHost(
         compilationConfiguration: ScriptCompilationConfiguration,
         evaluationConfiguration: ScriptEvaluationConfiguration?
     ): ResultWithDiagnostics<EvaluationResult> {
-        val originalClassLoader = Thread.currentThread().contextClassLoader
+        //val originalClassLoader = Thread.currentThread().contextClassLoader
         return try {
             ThreadLocalStorage.threadLocal.set(Constants.THREADLOCAL_TEST)
             // Trying to set the custom ClassLoader here.

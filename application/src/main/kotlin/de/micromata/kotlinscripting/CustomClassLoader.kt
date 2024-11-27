@@ -7,6 +7,9 @@ import java.util.*
 
 private val log = KotlinLogging.logger {}
 
+/**
+ * Custom class loader for testing purposes.
+ */
 class CustomClassLoader(parent: ClassLoader?) : ClassLoader("CustomClassLoader", parent) {
     override fun loadClass(name: String, resolve: Boolean): Class<*> {
         log.info { "loadClass(\"$name\", $resolve)" }
