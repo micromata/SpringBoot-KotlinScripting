@@ -30,3 +30,5 @@ Just run:
 
 1. `./gradlew clean build`
 2. `java -jar application/build/libs/application-0.0.1.jar`
+3. See the output in the console.
+4. Use CTRL+C to stop the application.

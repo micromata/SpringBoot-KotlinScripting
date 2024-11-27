@@ -2,6 +2,8 @@ package de.micromata.kotlinscripting
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import kotlin.script.experimental.api.ResultWithDiagnostics
+import kotlin.script.experimental.api.valueOrNull
 
 @SpringBootApplication
 class DemoApplication {
@@ -13,7 +15,14 @@ class DemoApplication {
 
             val scriptExecutor = ScriptExecutor()
             val result = scriptExecutor.executeScript()
-            println("Script result: $result")
+            if (result is ResultWithDiagnostics<*>) {
+                println("Script result: ${result.valueOrNull()}")
+                result.reports.forEach {
+                    println("Script report: ${it.message}")
+                }
+            } else {
+                println("Script result: $result")
+            }
         }
     }
 }

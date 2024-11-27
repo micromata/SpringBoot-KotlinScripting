@@ -62,16 +62,16 @@ class ScriptExecutor {
 
     companion object {
         val script = """
-            val sb = StringBuilder()
-            sb.appendln("Hello world!")
+            // Don't use StringBuilder here, because it's might not be available in the script classpath.
+            var result = "Hello world!\n"
             var loader = Thread.currentThread().contextClassLoader
             while (loader != null) {
-                sb.appendln("ClassLoader: ${'$'}loader")
+                result += "ClassLoader: ${'$'}loader\n"
                 loader = loader.parent
             }
-            sb.appendln("Classpath: ${'$'}{System.getProperty("java.class.path")}")
-            //sb.appendln(de.micromata.springbootkotlinscripting.ScriptExecutor.script)
-            sb.toString()
+            result += "Classpath: ${'$'}{System.getProperty("java.class.path")}\n"
+            //sb.appendLine(de.micromata.springbootkotlinscripting.ScriptExecutor.script)
+            result
         """.trimIndent()
     }
 }
