@@ -1,5 +1,6 @@
 package de.micromata.kotlinscripting
 
+import de.micromata.kotlinscripting.business.ThreadLocalStorage
 import mu.KotlinLogging
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
@@ -17,13 +18,14 @@ class CustomScriptingHost(
     ): ResultWithDiagnostics<EvaluationResult> {
         val originalClassLoader = Thread.currentThread().contextClassLoader
         return try {
-            // Setzen des gewünschten ClassLoaders
-            Thread.currentThread().contextClassLoader = customClassLoader
-            log.info { "CustomScriptingHost: Setting custom ClassLoader: $customClassLoader" }
+            ThreadLocalStorage.threadLocal.set(Constants.THREADLOCAL_TEST)
+            // Trying to set the custom ClassLoader here.
+            // Thread.currentThread().contextClassLoader = customClassLoader
+            // log.info { "CustomScriptingHost: Setting custom ClassLoader: $customClassLoader" }
             super.eval(script, compilationConfiguration, evaluationConfiguration)
         } finally {
-            // Zurücksetzen des ursprünglichen ClassLoaders
-            Thread.currentThread().contextClassLoader = originalClassLoader
+            // Resetting the original ClassLoader:
+            // Thread.currentThread().contextClassLoader = originalClassLoader
         }
     }
 }

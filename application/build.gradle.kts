@@ -15,9 +15,14 @@ val kotlinVersion = "2.0.21"
 
 val kotlinCompilerDependency = configurations.create("kotlinCompilerDependency")
 val kotlinCompilerDependencies = mutableListOf<String>()
+val versionOfSubmodules = "0.0.1"
+// All submodules must be unpacked with direct usage in scripts:
+val unpackSubmodules = listOf("business") // business must be unpacked, because KotlinScriptContext is used by scripts.
 
 dependencies {
-    implementation(project(":business"))
+    unpackSubmodules.forEach { module ->
+        implementation(project(":$module"))
+    }
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -46,13 +51,16 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
-val kotlinCompilerDependencyFiles = kotlinCompilerDependency.map { it.name }
+val kotlinCompilerDependencyFiles = kotlinCompilerDependency.map { it.name } + unpackSubmodules.map { "$it-$versionOfSubmodules.jar" }
 tasks.named<BootJar>("bootJar") {
     // println(kotlinCompilerDependencyFiles.joinToString())
     exclude(kotlinCompilerDependencyFiles.map { "**/$it" })
 }
 
 tasks.withType<Jar> {
+    unpackSubmodules.forEach { module ->
+        dependsOn(":$module:jar")
+    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from({
         configurations.runtimeClasspath.get().filter {

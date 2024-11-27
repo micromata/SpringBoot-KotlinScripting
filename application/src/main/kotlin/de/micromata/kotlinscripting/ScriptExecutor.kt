@@ -1,15 +1,14 @@
 package de.micromata.kotlinscripting
 
 import mu.KotlinLogging
-import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.host.toScriptSource
-import kotlin.script.experimental.jvm.JvmDependencyFromClassLoader
 import kotlin.script.experimental.jvm.baseClassLoader
+import kotlin.script.experimental.jvm.dependenciesFromClassloader
 import kotlin.script.experimental.jvm.jvm
 
 private val log = KotlinLogging.logger {}
@@ -17,25 +16,26 @@ private val log = KotlinLogging.logger {}
 class ScriptExecutor {
     private var evalException: Exception? = null
 
-    fun executeScript(): Any? {
+    fun executeScript(): ResultWithDiagnostics<EvaluationResult>? {
         val classLoader = CustomClassLoader(Thread.currentThread().contextClassLoader)
 
-        //val scriptingHost = BasicJvmScriptingHost()
         val scriptingHost = CustomScriptingHost(classLoader)
-        val dependencies =
-            listOf(File("/Users/kai/workspace/Micromata/SpringBoot-KotlinScripting/build/libs/SpringBoot-KotlinScripting-0.0.1-SNAPSHOT.jar"))
         val compilationConfig = ScriptCompilationConfiguration {
             jvm {
-                dependencies(JvmDependencyFromClassLoader { classLoader })
+                dependenciesFromClassloader(classLoader = classLoader, wholeClasspath = true)
                 //dependencies(JvmDependency(dependencies))
                 //dependenciesFromClassloader(classLoader = classLoader, wholeClasspath = true)
             }
+            providedProperties("context" to KotlinScriptContext::class)
+            compilerOptions.append("-nowarn")
         }
+        val context = KotlinScriptContext()
+        context.setProperty("testVariable", Constants.TEST_VAR)
         val evaluationConfiguration = ScriptEvaluationConfiguration {
             jvm {
-                //actualClassLoader(CustomClassLoader(Thread.currentThread().contextClassLoader))
                 baseClassLoader(classLoader)
             }
+            providedProperties("context" to context)
         }
         val scriptSource = script.toScriptSource()
         val executor = Executors.newSingleThreadExecutor()
@@ -44,7 +44,7 @@ class ScriptExecutor {
             future = executor.submit<ResultWithDiagnostics<EvaluationResult>> {
                 scriptingHost.eval(scriptSource, compilationConfig, evaluationConfiguration)
             }
-            return future.get(500, TimeUnit.SECONDS)  // Timeout
+            return future.get(10, TimeUnit.SECONDS)  // Timeout
         } catch (ex: TimeoutException) {
             log.info("Script execution was cancelled due to timeout.")
             future?.cancel(true)  // Attempt to cancel
@@ -61,17 +61,34 @@ class ScriptExecutor {
     }
 
     companion object {
+        val simplestScript = "\"Hello world!\""
         val script = """
-            // Don't use StringBuilder here, because it's might not be available in the script classpath.
-            var result = "Hello world!\n"
+            import de.micromata.kotlinscripting.business.ThreadLocalStorage
+            val sb = StringBuilder()
+            sb.appendLine("Hello world!")
+            val threadLocalVal = ThreadLocalStorage.threadLocal.get()
+            if (threadLocalVal == "${Constants.THREADLOCAL_TEST}") {
+                sb.appendLine("ThreadLocal: ${'$'}threadLocalVal (OK)")
+            } else {
+                sb.appendLine("ThreadLocal: ${'$'}threadLocalVal (*** ERROR, ${Constants.THREADLOCAL_TEST} expected)")
+            }
+            val testVar = context.getProperty("testVariable")
+            if (testVar == "${Constants.TEST_VAR}") {
+                sb.appendLine("Context: ${'$'}testVar (OK)")
+            } else {
+                sb.appendLine("Context: ${'$'}testVar (*** ERROR, ${Constants.TEST_VAR} expected)")
+            }
             var loader = Thread.currentThread().contextClassLoader
+            val classLoaders = mutableListOf<ClassLoader>()
             while (loader != null) {
-                result += "ClassLoader: ${'$'}loader\n"
+                classLoaders.add(loader)
                 loader = loader.parent
             }
-            result += "Classpath: ${'$'}{System.getProperty("java.class.path")}\n"
+            sb.append("ClassLoader: ")
+            sb.appendLine("${'$'}{classLoaders.joinToString(", parent: ") { it.toString() }}")
+            sb.appendLine("Classpath: ${'$'}{System.getProperty("java.class.path")}")
             //sb.appendLine(de.micromata.springbootkotlinscripting.ScriptExecutor.script)
-            result
+            sb.toString()
         """.trimIndent()
     }
 }
