@@ -13,8 +13,13 @@ Theoretically, a classloader can be configured for Kotlin scripting.
 
 Unfortunately, this doesn't actually work because the implementation uses its own classloader.
 
-## The solution
-The workaround is to unpack the jars used by the scripts.
+## The solution (for Kotlin 2.0.21)
+The current workaround is to unpack the kotlin jars used by the scripts inside the fat jar
+and to copy the jars used by the scripts to the local file system and using URLClassLoader to load the classes.
+
+As a result: you shouldn't combine unpacking and copying jars in the same project (see COPY_MIX_FAIL in the log messages).
+
+Later, we should check, if the classloader issue is fixed in the future.
 
 ## Motivation
 Kotlin scripts in my application for evaluations etc. are a powerful option.

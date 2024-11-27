@@ -60,15 +60,24 @@ internal object KotlinScriptUtils {
             line2?.let { log(severity, it) }
         }
         val returnValue = extractResult(result)
+        if (returnValue is ResultValue.Error) {
+            logReport(result)
+            log.error { "Script result with error: ${returnValue.error}" }
+            return returnValue.error
+        }
         if (result is ResultWithDiagnostics.Success) {
-            println("Script result with success: ${returnValue}")
+            log.info { "Script result with success: ${returnValue}" }
         } else {
-            println("*** Script result: ${result.valueOrNull()}")
-            result.reports.forEach {
-                println("Script report: ${it.message}")
-            }
+            log.error { "Script result: ${result.valueOrNull()}" }
+            logReport(result)
         }
         return returnValue
+    }
+
+    private fun logReport(result: ResultWithDiagnostics<EvaluationResult>) {
+        result.reports.forEach {
+            log.error { "Script report: ${it.message}" }
+        }
     }
 
     internal fun loadScript(filename: String): String {

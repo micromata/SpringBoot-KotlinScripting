@@ -8,21 +8,28 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.host.toScriptSource
+import kotlin.script.experimental.jvm.baseClassLoader
 import kotlin.script.experimental.jvm.dependenciesFromClassloader
 import kotlin.script.experimental.jvm.jvm
 
 private val log = KotlinLogging.logger {}
 
-class ScriptExecutorWithCustomizedScriptingHost {
+/**
+ * Doesn't work with the current Kotlin version. The classloader is not used.
+ *
+ * Refer e.g. kotlin.script.experimental.jvm.impl.KJvmCompiledScript and kotlin.script.experimental.jvm.BasicJvmScriptEvaluator
+ * for further debugging.
+ */
+class ScriptExecutorWithOwnClassloader {
     private var evalException: Exception? = null
 
-    fun executeScript(scriptFile: String): Any? {
-        val script = KotlinScriptUtils.loadScript(scriptFile)
-        val scriptingHost = CustomScriptingHost() // (classLoader)
+    fun executeScript(): Any? {
+        val classLoader = CustomClassLoader(Thread.currentThread().contextClassLoader)
+        val script = KotlinScriptUtils.loadScript("useContextAndCommons.kts")
+        val scriptingHost = CustomScriptingHost(classLoader) // (classLoader)
         val compilationConfig = ScriptCompilationConfiguration {
             jvm {
-                // dependenciesFromClassloader(classLoader = classLoader, wholeClasspath = true)
-                dependenciesFromClassloader(wholeClasspath = true)
+                dependenciesFromClassloader(classLoader = classLoader, wholeClasspath = true)
             }
             providedProperties("context" to KotlinScriptContext::class)
             compilerOptions.append("-nowarn")
@@ -30,9 +37,9 @@ class ScriptExecutorWithCustomizedScriptingHost {
         val context = KotlinScriptContext()
         context.setProperty("testVariable", Constants.TEST_VAR)
         val evaluationConfiguration = ScriptEvaluationConfiguration {
-            /*jvm {
+            jvm {
                 baseClassLoader(classLoader) // Without effect. ClassLoader will be overwritten by the UrlClassLoader.
-            }*/
+            }
             providedProperties("context" to context)
         }
         val scriptSource = script.toScriptSource()
@@ -42,7 +49,7 @@ class ScriptExecutorWithCustomizedScriptingHost {
             future = executor.submit<ResultWithDiagnostics<EvaluationResult>> {
                 scriptingHost.eval(scriptSource, compilationConfig, evaluationConfiguration)
             }
-            val result = future.get(5, TimeUnit.SECONDS)  // Timeout
+            val result = future.get(10, TimeUnit.SECONDS)  // Timeout
             return KotlinScriptUtils.handleResult(result, script)
         } catch (ex: TimeoutException) {
             log.info("Script execution was cancelled due to timeout.")

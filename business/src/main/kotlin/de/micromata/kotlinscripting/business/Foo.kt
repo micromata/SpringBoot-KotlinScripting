@@ -7,7 +7,7 @@ object Foo {
         return "A warm welcome from business package."
     }
 
-    fun useCommons(): String {
-        return GetMessage.getMessage()
+    fun callCommons(): String {
+        return "business is calling commons: " + GetMessage.getMessage()
     }
 }

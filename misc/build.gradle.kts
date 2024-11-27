@@ -6,6 +6,5 @@ plugins {
 val kotlinVersion: String by rootProject.extra
 
 dependencies {
-    implementation(project(":misc"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 }

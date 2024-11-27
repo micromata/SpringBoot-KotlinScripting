@@ -8,8 +8,8 @@ import kotlin.script.experimental.jvm.jvm
 import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 
 class SimpleScriptExecutor {
-    fun executeScript(file: String): Any? {
-        val script = KotlinScriptUtils.loadScript(file)
+    fun executeScript(scriptFile: String): Any? {
+        val script = KotlinScriptUtils.loadScript(scriptFile)
         val scriptingHost = BasicJvmScriptingHost()
         val compilationConfig = ScriptCompilationConfiguration {
             jvm {
