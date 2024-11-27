@@ -1,11 +1,13 @@
 package de.micromata.kotlinscripting
 
-import org.jetbrains.kotlin.ir.types.IdSignatureValues.result
+import org.springframework.boot.ExitCodeGenerator
+import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import kotlin.script.experimental.api.ResultValue
 import kotlin.script.experimental.api.ResultWithDiagnostics
 import kotlin.script.experimental.api.valueOrNull
+
 
 @SpringBootApplication
 class DemoApplication {
@@ -33,6 +35,8 @@ class DemoApplication {
             } else {
                 println("*** Script result: $result")
             }
+            System.exit(0) // Not an elegant way, but here it is enough.
+
         }
     }
 }
