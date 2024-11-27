@@ -1,4 +1,4 @@
-# A minimal Spring Boot project with Kotlin scripting
+# A minimal Spring Boot project using Kotlin scripting
 
 ## Introduction
 
@@ -15,6 +15,11 @@ Unfortunately, this doesn't actually work because the implementation uses its ow
 
 ## The solution
 The workaround is to unpack the jars used by the scripts.
+
+## Gradle vs. Maven
+I migrated my project (ProjectForge) from *Maven* to *Gradle*. In principle, unpacking fatjars with maven is also possible, but it is incredibly more complicated.
+
+After a few hours I decided to invest the time in migrating to Gradle. This was also time-consuming, but it paid off in the end.
 
 ## This project
 This project contains sample code including a gradle setup that implements a minimal project with these requirements.
