@@ -29,11 +29,11 @@ But please note: scripts must be well secured because they may have full access 
 ## State of the art (call for improvements)
 I tried several approaches:
 
-- passing my own classLoader (doesn't work)
-- unpacking jars in the SpringBoot fatjar (does work), and
-- automatically copying jars from the fatjar to the local file system (will follow).
+1. passing my own classLoader (doesn't work, see CLASSLOADER_FAIL), help needed.
+2. unpacking jars in the SpringBoot fatjar (does work), and
+3. automatically copying jars from the fatjar to the local file system.
 
-I will show all approaches here and call for improvements.
+You can test and see all approaches here. The current solution used in ProjectForge is a combination of 2 and 3.
 
 ## Gradle vs. Maven
 I migrated my project (ProjectForge) from *Maven* to *Gradle*. In principle, unpacking fatjars with maven is also possible, but it is incredibly more complicated.
