@@ -20,7 +20,7 @@ val unpackSubmodules = listOf("business") // business must be unpacked, because 
 
 dependencies {
     unpackSubmodules.forEach { module ->
-        implementation(project(":$module"))
+        implementation(project(":$module")) // Add this dependency for usage in the application.
     }
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter")
@@ -36,11 +36,10 @@ dependencies {
     kotlinCompilerDependencies.add("org.jetbrains.kotlin:kotlin-scripting-jvm:$kotlinVersion")
     kotlinCompilerDependencies.add("org.jetbrains.kotlin:kotlin-scripting-jvm-host:$kotlinVersion")
     kotlinCompilerDependencies.add("org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion")
-    kotlinCompilerDependencies.add("org.jetbrains.kotlin:kotlin-scripting-jsr223:$kotlinVersion")
     kotlinCompilerDependencies.add("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
     kotlinCompilerDependencies.forEach {
-        kotlinCompilerDependency(it)
-        implementation(it)
+        kotlinCompilerDependency(it) // Add this dependency for handling and exclusion in bootJar task.
+        implementation(it)           // Add this dependency for usage in the application.
     }
 
     // Logging
@@ -53,18 +52,18 @@ dependencies {
 val kotlinCompilerDependencyFiles = kotlinCompilerDependency.map { it.name } + unpackSubmodules.map { "$it-$versionOfSubmodules.jar" }
 tasks.named<BootJar>("bootJar") {
     // println(kotlinCompilerDependencyFiles.joinToString())
-    exclude(kotlinCompilerDependencyFiles.map { "**/$it" })
+    exclude(kotlinCompilerDependencyFiles.map { "**/$it" }) // Exclude this jar, it's extracted.
 }
 
 tasks.withType<Jar> {
     unpackSubmodules.forEach { module ->
-        dependsOn(":$module:jar")
+        dependsOn(":$module:jar") // Ensure that the submodule jars are built before this jar.
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from({
         configurations.runtimeClasspath.get().filter {
             // println("it.name=${it.name}")
             kotlinCompilerDependencyFiles.any { file -> it.name.contains(file) }
-        }.map { if (it.isDirectory) it else zipTree(it) }
+        }.map { if (it.isDirectory) it else zipTree(it) } // Unpack the jar files.
     })
 }
