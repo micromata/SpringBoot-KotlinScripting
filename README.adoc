@@ -1,19 +1,19 @@
-# A minimal Spring Boot project using Kotlin scripting
+= A minimal Spring Boot project using Kotlin scripting
 
-## Introduction
+== Introduction
 
 Running Kotlin scripts inside Spring Boot applications is a cool thing.
 
 But it is very tricky to make it work inside SpringBoot fatjars.
 
-## The problem
+== The problem
 Kotlin cannot load classes from the fatjars.
 
 Theoretically, a classloader can be configured for Kotlin scripting.
 
 Unfortunately, this doesn't actually work because the implementation uses its own classloader.
 
-## The solution (for Kotlin 2.0.21)
+== The solution (for Kotlin 2.0.21)
 The current workaround is to unpack the kotlin jars used by the scripts inside the fat jar
 and to copy the jars used by the scripts to the local file system and using URLClassLoader to load the classes.
 
@@ -21,12 +21,12 @@ As a result: you shouldn't combine unpacking and copying jars in the same projec
 
 Later, we should check, if the classloader issue is fixed in the future.
 
-## Motivation
+== Motivation
 Kotlin scripts in my application for evaluations etc. are a powerful option.
 Scripts can be adapted at runtime.
 But please note: scripts must be well secured because they may have full access to the application.
 
-## State of the art (call for improvements)
+== State of the art (call for improvements)
 I tried several approaches:
 
 1. passing my own classLoader (doesn't work, see CLASSLOADER_FAIL), help needed.
@@ -35,15 +35,15 @@ I tried several approaches:
 
 You can test and see all approaches here. The current solution used in ProjectForge is a combination of 2 and 3.
 
-## Gradle vs. Maven
+== Gradle vs. Maven
 I migrated my project (ProjectForge) from *Maven* to *Gradle*. In principle, unpacking fatjars with maven is also possible, but it is incredibly more complicated.
 
 After a few hours I decided to invest the time in migrating to Gradle. This was also time-consuming, but it paid off in the end.
 
-## This project
+== This project
 This project contains sample code including a gradle setup that implements a minimal project with these requirements.
 
-### Module: application
+=== Module: application
 The Spring Boot application with gradle configuration to unpack the jars.
 
 The current solution:
@@ -51,10 +51,16 @@ The current solution:
 - Variables can be passed. This is useful, for example, if users are required in ThreadLocal for the user authentication of application functions used.
 - The script is automatically stopped after a defined runtime. This avoids endless scripts or unwanted long-running scripts.
 
-### Module: business
-A simple module with a class that is used by the Kotlin script.
+=== Module: business
+A simple module with a class that is used by the Kotlin script. This module is extracted inside the fat jar for testing extracted modules.
 
-## How to run
+=== Module: commons
+A simple module with a class that is usable by Kotlin scripts and used by business. This module is copied as jar to an external directory for testing copied jars (loaded via URLClassLoader).
+
+=== Module: misc
+A simple module with a class that is usable by Kotlin scripts and used by common. This module is copied as jar to an external directory for testing copied jars (loaded via URLClassLoader).
+
+== How to run
 Just run:
 
 1. `./gradlew clean build`
@@ -62,7 +68,7 @@ Just run:
 3. See the output in the console.
 
 
-## Jetbrains
+== Jetbrains
 
 Please refer: https://blog.jetbrains.com/kotlin/2024/11/state-of-kotlin-scripting-2024/
 
