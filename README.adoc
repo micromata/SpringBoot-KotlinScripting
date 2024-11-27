@@ -23,6 +23,7 @@ But please note: scripts must be well secured because they may have full access 
 
 ## State of the art (call for improvements)
 I tried several approaches:
+
 - passing my own classLoader (doesn't work)
 - unpacking jars in the SpringBoot fatjar (does work), and
 - automatically copying jars from the fatjar to the local file system (will follow).
