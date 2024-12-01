@@ -1,76 +1,90 @@
-= A minimal Spring Boot project using Kotlin scripting
+= Run Kotlin Scripts in Spring Boot: A Minimal Example
 
-== Introduction
+== 🚀 Why Kotlin Scripting in Spring Boot?
 
-Running Kotlin scripts inside Spring Boot applications is a cool thing.
+Kotlin scripting adds dynamic power to Spring Boot applications. 
+Imagine adapting your app's behavior, such as reports at runtime without redeploying—Kotlin scripts make this possible! 
+However, using Kotlin scripts inside **Spring Boot fat JARs** is challenging. 
+This repository explores practical solutions and invites collaboration to refine and improve them.
 
-But it is very tricky to make it work inside SpringBoot fatjars.
+== 🛑 The Challenge
 
-== The problem
-Kotlin cannot load classes from the fatjars.
+Kotlin scripts struggle to load classes from Spring Boot fat JARs. 
+While configuring a custom classloader for Kotlin scripting seems promising, 
+the default Kotlin implementation uses its own classloader, making this approach ineffective.
 
-Theoretically, a classloader can be configured for Kotlin scripting.
+== ✅ Our Current Solution (for Kotlin 2.0.21)
 
-Unfortunately, this doesn't actually work because the implementation uses its own classloader.
+The workaround involves:
 
-== The solution (for Kotlin 2.0.21)
-The current workaround is to unpack the kotlin jars used by the scripts inside the fat jar
-and to copy the jars used by the scripts to the local file system and using URLClassLoader to load the classes.
+. **Unpacking JARs**: Extracting the Kotlin JARs embedded in the fat JAR.
+. **Copying JARs to Local Filesystem**: Using `URLClassLoader` to load classes from these JARs.
 
-As a result: you shouldn't combine unpacking and copying jars in the same project (see COPY_MIX_FAIL in the log messages).
+IMPORTANT: Don’t mix unpacking and copying JARs in the same project. 
+(Look for `COPY_MIX_FAIL` in the logs.)
 
-Later, we should check, if the classloader issue is fixed in the future.
+We'll monitor Kotlin updates to see if this limitation gets resolved.
 
-== Motivation
-Kotlin scripts in my application for evaluations etc. are a powerful option.
-Scripts can be adapted at runtime.
-But please note: scripts must be well secured because they may have full access to the application.
+== 💡 Why Use Kotlin Scripting?
 
-== State of the art (call for improvements)
-I tried several approaches:
+- **Dynamic Adaptability:** Change scripts without restarting the application.
+- **Runtime Flexibility:** Evaluate and execute scripts dynamically for specific tasks.
 
-1. passing my own classLoader (doesn't work, see CLASSLOADER_FAIL), help needed.
-2. unpacking jars in the SpringBoot fatjar (does work), and
-3. automatically copying jars from the fatjar to the local file system.
+**Security Warning:** Scripts can access your application internals. Secure them to avoid risks.
 
-You can test and see all approaches here. The current solution used in ProjectForge is a combination of 2 and 3.
+== 🌟 How This Project Helps You
 
-== Gradle vs. Maven
-I migrated my project (ProjectForge) from *Maven* to *Gradle*. In principle, unpacking fatjars with maven is also possible, but it is incredibly more complicated.
+This project is a **step-by-step guide** for implementing Kotlin scripting in Spring Boot. It covers:
 
-After a few hours I decided to invest the time in migrating to Gradle. This was also time-consuming, but it paid off in the end.
+- **Gradle Configuration:** Simplifies fat JAR unpacking and script integration.
+- **Practical Examples:** Includes sample modules demonstrating unpacking and copying approaches.
+- **Pitfalls and Best Practices:** Save hours of troubleshooting by learning from our experience.
 
-== This project
-This project contains sample code including a gradle setup that implements a minimal project with these requirements.
+=== Modules Overview
 
-=== Module: application
-The Spring Boot application with gradle configuration to unpack the jars.
+1. **Application**: Core Spring Boot app with Gradle config for unpacking JARs.
+   - Supports passing variables (e.g., for user authentication in scripts).
+   - Includes automatic script timeout to prevent endless execution.
+2. **Business**: Demonstrates an unpacked module accessible to scripts (for test purposes, only).
+3. **Commons & Misc**: Shows copied JARs loaded via `URLClassLoader` (for test purposes, only).
 
-The current solution:
+== 🚀 Quick Start
 
-- Variables can be passed. This is useful, for example, if users are required in ThreadLocal for the user authentication of application functions used.
-- The script is automatically stopped after a defined runtime. This avoids endless scripts or unwanted long-running scripts.
+To test this project:
 
-=== Module: business
-A simple module with a class that is used by the Kotlin script. This module is extracted inside the fat jar for testing extracted modules.
+. Clone the repository: `git clone https://github.com/micromata/SpringBoot-KotlinScripting.git`
+. Build the app: `./gradlew clean build`
+. Run it: `java -jar application/build/libs/application-0.0.1.jar`
+. Check the console output for execution details.
 
-=== Module: commons
-A simple module with a class that is usable by Kotlin scripts and used by business. This module is copied as jar to an external directory for testing copied jars (loaded via URLClassLoader).
+== 🛠️ Why Gradle?
 
-=== Module: misc
-A simple module with a class that is usable by Kotlin scripts and used by common. This module is copied as jar to an external directory for testing copied jars (loaded via URLClassLoader).
+Gradle simplifies fat JAR unpacking compared to Maven. 
+After experimenting with both, I found Gradle to be a more developer-friendly solution for this use case.
 
-== How to run
-Just run:
+== 🌐 Learn More
 
-1. `./gradlew clean build`
-2. `java -jar application/build/libs/application-0.0.1.jar`
-3. See the output in the console.
+=== Kotlin Scripting Updates
 
+Stay up-to-date with JetBrains' Kotlin scripting blog: 
+https://blog.jetbrains.com/kotlin/2024/11/state-of-kotlin-scripting-2024/[State of Kotlin Scripting 2024].
 
-== Jetbrains
+=== Collaboration Welcome
 
-Please refer: https://blog.jetbrains.com/kotlin/2024/11/state-of-kotlin-scripting-2024/
+Have ideas or improvements? Fork the repo, open an issue, or submit a pull request. 
+Your feedback will make this project even better!
 
-- The used BasicScriptingHost here is part of Jetbrains' Kotlin scripting.
-- JSR 223 is outdated and will be removed.
+== 🔎 Optimized for Search Engines
+
+=== Keywords
+- Kotlin scripting
+- Spring Boot scripting
+- Spring Boot fat JAR
+- Spring Boot dynamic runtime
+- Kotlin dynamic evaluation
+- Kotlin script classloader
+
+=== Meta Description
+
+"Explore a minimal Spring Boot project demonstrating Kotlin scripting integration. 
+Overcome Kotlin fat JAR classloader issues with practical solutions and Gradle examples."
