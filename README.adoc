@@ -87,4 +87,4 @@ Your feedback will make this project even better!
 === Meta Description
 
 "Explore a minimal Spring Boot project demonstrating Kotlin scripting integration. 
-Overcome Kotlin fat JAR classloader issues with practical solutions and Gradle examples."
+Overcome Kotlin classloader issues in combination with Spring Boot Fat JAR with practical solutions and Gradle examples."
