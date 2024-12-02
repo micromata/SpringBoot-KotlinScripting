@@ -11,7 +11,7 @@ This repository explores practical solutions and invites collaboration to refine
 
 Kotlin scripts struggle to load classes from Spring Boot fat JARs. 
 While configuring a custom classloader for Kotlin scripting seems promising, 
-the default Kotlin implementation uses its own classloader, making this approach ineffective.
+the default Kotlin implementation uses its the standard classloader, making this approach ineffective.
 
 == ✅ Our Current Solution (for Kotlin 2.0.21)
 
